@@ -15,6 +15,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"ephemeral/apps/core-api/internal/router"
+	"ephemeral/apps/core-api/migrations"
 	"ephemeral/packages/go-shared/config"
 	"ephemeral/packages/go-shared/db"
 )
@@ -42,6 +43,10 @@ func main() {
 		pgPool = pool
 		logger.Info("connected to postgres")
 		defer pgPool.Close()
+
+		if err := db.RunMigrations(cfg.DatabaseURL, migrations.FS, ".", logger); err != nil {
+			logger.Error("failed to run database migrations", slog.Any("error", err))
+		}
 	}
 
 	var redisClient *redis.Client

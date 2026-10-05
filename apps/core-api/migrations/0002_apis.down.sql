@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS apis;
+DROP TYPE IF EXISTS api_status;
