@@ -92,6 +92,10 @@ func New(deps RouterDeps) *chi.Mux {
 		apiService := service.NewAPIService(apiRepo)
 		apiHandler := handler.NewAPIHandler(apiService)
 
+		planRepo := repository.NewPlanRepository(deps.DB)
+		planService := service.NewPlanService(planRepo, apiRepo)
+		planHandler := handler.NewPlanHandler(planService)
+
 		// Auth endpoints
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", authHandler.Register)
@@ -104,20 +108,34 @@ func New(deps RouterDeps) *chi.Mux {
 			})
 		})
 
-		// Public API catalog
+		// Public API catalog & plans
 		r.Get("/apis", apiHandler.ListPublic)
 		r.Get("/apis/{slug}", apiHandler.GetPublic)
+		r.Get("/apis/{slug}/plans", planHandler.ListPublic)
 
-		// Provider API administration
-		r.Route("/admin/apis", func(r chi.Router) {
+		// Provider administration
+		r.Route("/admin", func(r chi.Router) {
 			r.Use(middleware.Auth(deps.JWTSecret, authService.GetUserByID))
 			r.Use(middleware.RequireRole(models.RoleProvider, models.RoleAdmin))
 
-			r.Post("/", apiHandler.Create)
-			r.Get("/", apiHandler.ListOwn)
-			r.Get("/{id}", apiHandler.GetOwn)
-			r.Put("/{id}", apiHandler.Update)
-			r.Delete("/{id}", apiHandler.Delete)
+			// APIs
+			r.Route("/apis", func(r chi.Router) {
+				r.Post("/", apiHandler.Create)
+				r.Get("/", apiHandler.ListOwn)
+				r.Get("/{id}", apiHandler.GetOwn)
+				r.Put("/{id}", apiHandler.Update)
+				r.Delete("/{id}", apiHandler.Delete)
+
+				// Plans under API
+				r.Post("/{id}/plans", planHandler.Create)
+				r.Get("/{id}/plans", planHandler.ListByAPI)
+			})
+
+			// Plans
+			r.Route("/plans/{planID}", func(r chi.Router) {
+				r.Put("/", planHandler.Update)
+				r.Delete("/", planHandler.Delete)
+			})
 		})
 	}
 
