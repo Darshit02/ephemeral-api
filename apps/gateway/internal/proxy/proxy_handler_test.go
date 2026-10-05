@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	gatewayAuth "ephemeral/apps/gateway/internal/auth"
 	"ephemeral/apps/gateway/internal/proxy"
 	"ephemeral/apps/gateway/internal/repository"
 	"ephemeral/packages/go-shared/auth"
@@ -49,10 +50,13 @@ func (m *mockRepo) RecordUsage(ctx context.Context, subID, apiID, endpoint, meth
 	return nil
 }
 
-func setupTestRouter(handler *proxy.ProxyHandler) *chi.Mux {
+func setupTestRouter(repo repository.Repository, handler *proxy.ProxyHandler) *chi.Mux {
 	r := chi.NewRouter()
-	r.Handle("/v1/{slug}", handler)
-	r.Handle("/v1/{slug}/*", handler)
+	r.Route("/v1/{slug}", func(apiR chi.Router) {
+		apiR.Use(gatewayAuth.Middleware(repo, nil))
+		apiR.HandleFunc("/", handler.ServeHTTP)
+		apiR.HandleFunc("/*", handler.ServeHTTP)
+	})
 	return r
 }
 
@@ -63,8 +67,9 @@ func TestProxyHandler(t *testing.T) {
 	subID := "sub-456"
 
 	t.Run("missing API key returns 401", func(t *testing.T) {
-		h := proxy.NewProxyHandler(&mockRepo{}, nil)
-		r := setupTestRouter(h)
+		repo := &mockRepo{}
+		h := proxy.NewProxyHandler(repo, nil)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api", nil)
 		rr := httptest.NewRecorder()
@@ -79,8 +84,9 @@ func TestProxyHandler(t *testing.T) {
 	})
 
 	t.Run("short API key returns 401", func(t *testing.T) {
-		h := proxy.NewProxyHandler(&mockRepo{}, nil)
-		r := setupTestRouter(h)
+		repo := &mockRepo{}
+		h := proxy.NewProxyHandler(repo, nil)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api", nil)
 		req.Header.Set("X-API-Key", "short")
@@ -102,7 +108,7 @@ func TestProxyHandler(t *testing.T) {
 			},
 		}
 		h := proxy.NewProxyHandler(repo, nil)
-		r := setupTestRouter(h)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api", nil)
 		req.Header.Set("X-API-Key", validKey)
@@ -129,7 +135,7 @@ func TestProxyHandler(t *testing.T) {
 			},
 		}
 		h := proxy.NewProxyHandler(repo, nil)
-		r := setupTestRouter(h)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api", nil)
 		req.Header.Set("X-API-Key", validKey)
@@ -159,7 +165,7 @@ func TestProxyHandler(t *testing.T) {
 			},
 		}
 		h := proxy.NewProxyHandler(repo, nil)
-		r := setupTestRouter(h)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api", nil)
 		req.Header.Set("X-API-Key", validKey)
@@ -192,7 +198,7 @@ func TestProxyHandler(t *testing.T) {
 			},
 		}
 		h := proxy.NewProxyHandler(repo, nil)
-		r := setupTestRouter(h)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api", nil)
 		req.Header.Set("X-API-Key", validKey)
@@ -230,7 +236,7 @@ func TestProxyHandler(t *testing.T) {
 			},
 		}
 		h := proxy.NewProxyHandler(repo, nil)
-		r := setupTestRouter(h)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api", nil)
 		req.Header.Set("X-API-Key", validKey)
@@ -268,7 +274,7 @@ func TestProxyHandler(t *testing.T) {
 			},
 		}
 		h := proxy.NewProxyHandler(repo, nil)
-		r := setupTestRouter(h)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api", nil)
 		req.Header.Set("X-API-Key", validKey)
@@ -329,7 +335,7 @@ func TestProxyHandler(t *testing.T) {
 
 		h := proxy.NewProxyHandler(repo, nil)
 		h.SetHTTPClient(mockClient)
-		r := setupTestRouter(h)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api/forecast/daily?days=5", nil)
 		req.Header.Set("X-API-Key", validKey)
@@ -387,7 +393,7 @@ func TestProxyHandler(t *testing.T) {
 
 		h := proxy.NewProxyHandler(repo, nil)
 		h.SetHTTPClient(mockClient)
-		r := setupTestRouter(h)
+		r := setupTestRouter(repo, h)
 
 		req := httptest.NewRequest(http.MethodGet, "/v1/weather-api/test", nil)
 		req.Header.Set("X-API-Key", validKey)

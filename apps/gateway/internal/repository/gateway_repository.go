@@ -29,6 +29,12 @@ type SubscriptionAuthInfo struct {
 	RateLimitPerHour int
 }
 
+type Repository interface {
+	FindSubscriptionsByPrefix(ctx context.Context, prefix string) ([]SubscriptionAuthInfo, error)
+	FindAPIBySlug(ctx context.Context, slug string) (*models.API, error)
+	RecordUsage(ctx context.Context, subID, apiID, endpoint, method string, status, latencyMs int) error
+}
+
 type GatewayRepository struct {
 	pool *pgxpool.Pool
 }

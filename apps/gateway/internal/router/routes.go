@@ -10,8 +10,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
+	"ephemeral/apps/gateway/internal/auth"
 	"ephemeral/apps/gateway/internal/proxy"
+	"ephemeral/apps/gateway/internal/ratelimit"
 	"ephemeral/apps/gateway/internal/repository"
+	"ephemeral/apps/gateway/internal/usage"
 	"ephemeral/packages/go-shared/middleware"
 	"ephemeral/packages/go-shared/response"
 )
@@ -60,10 +63,24 @@ func New(deps GatewayRouterDeps) *chi.Mux {
 
 	if deps.DB != nil {
 		repo := repository.NewGatewayRepository(deps.DB)
+
+		var limiter ratelimit.Limiter
+		if deps.Redis != nil {
+			limiter = ratelimit.NewRedisLimiter(deps.Redis)
+		}
+
 		proxyHandler := proxy.NewProxyHandler(repo, deps.Logger)
 
-		r.HandleFunc("/v1/{slug}", proxyHandler.ServeHTTP)
-		r.HandleFunc("/v1/{slug}/*", proxyHandler.ServeHTTP)
+		r.Route("/v1/{slug}", func(apiR chi.Router) {
+			apiR.Use(auth.Middleware(repo, deps.Logger))
+			apiR.Use(usage.Middleware(repo, deps.Logger))
+			if limiter != nil {
+				apiR.Use(ratelimit.Middleware(limiter, deps.Logger))
+			}
+
+			apiR.HandleFunc("/", proxyHandler.ServeHTTP)
+			apiR.HandleFunc("/*", proxyHandler.ServeHTTP)
+		})
 	}
 
 	return r

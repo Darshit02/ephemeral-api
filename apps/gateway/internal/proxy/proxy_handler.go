@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"context"
-	"crypto/subtle"
 	"errors"
 	"io"
 	"log/slog"
@@ -12,8 +11,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	gatewayAuth "ephemeral/apps/gateway/internal/auth"
 	"ephemeral/apps/gateway/internal/repository"
-	"ephemeral/packages/go-shared/auth"
 	"ephemeral/packages/go-shared/models"
 	"ephemeral/packages/go-shared/response"
 )
@@ -51,71 +50,23 @@ func (h *ProxyHandler) SetHTTPClient(client *http.Client) {
 }
 
 func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	startTime := time.Now()
-
-	// 1. Extract X-API-Key header
-	apiKey := strings.TrimSpace(r.Header.Get("X-API-Key"))
-	if apiKey == "" {
-		response.Error(w, http.StatusUnauthorized, "MISSING_API_KEY", "Missing X-API-Key header")
-		return
-	}
-
-	if len(apiKey) < 12 {
-		response.Error(w, http.StatusUnauthorized, "INVALID_API_KEY", "Invalid API key")
-		return
-	}
-
-	// 2. Look up subscription by api_key_prefix (indexed)
-	prefix := apiKey[:12]
-	hash := auth.HashAPIKey(apiKey)
-
-	subs, err := h.repo.FindSubscriptionsByPrefix(r.Context(), prefix)
-	if err != nil || len(subs) == 0 {
-		response.Error(w, http.StatusUnauthorized, "INVALID_API_KEY", "Invalid API key")
-		return
-	}
-
-	// 3. Constant-time compare SHA-256 hash
-	var matchedSub *repository.SubscriptionAuthInfo
-	for _, s := range subs {
-		if subtle.ConstantTimeCompare([]byte(s.APIKeyHash), []byte(hash)) == 1 {
-			matchedSub = &s
-			break
-		}
-	}
-
-	if matchedSub == nil {
-		response.Error(w, http.StatusUnauthorized, "INVALID_API_KEY", "Invalid API key")
-		return
-	}
-
-	// 4. Check subscription status = active
-	if matchedSub.Status != models.SubscriptionStatusActive {
-		response.Error(w, http.StatusForbidden, "SUBSCRIPTION_INACTIVE", "Subscription is not active")
-		return
-	}
-
-	// 5. Check current_period_end > now
-	if matchedSub.CurrentPeriodEnd.Before(time.Now()) {
-		response.Error(w, http.StatusForbidden, "SUBSCRIPTION_INACTIVE", "Subscription period has expired")
-		return
-	}
-
-	// 6. Look up API by slug, verify status = live
-	slug := chi.URLParam(r, "slug")
-	api, err := h.repo.FindAPIBySlug(r.Context(), slug)
-	if err != nil {
-		if errors.Is(err, repository.ErrAPINotFound) {
-			response.Error(w, http.StatusNotFound, "API_NOT_FOUND", "API not found")
+	api := gatewayAuth.GetAPI(r.Context())
+	if api == nil && h.repo != nil {
+		slug := chi.URLParam(r, "slug")
+		var err error
+		api, err = h.repo.FindAPIBySlug(r.Context(), slug)
+		if err != nil {
+			if errors.Is(err, repository.ErrAPINotFound) {
+				response.Error(w, http.StatusNotFound, "API_NOT_FOUND", "API not found")
+				return
+			}
+			response.Error(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Failed to lookup API")
 			return
 		}
-		response.Error(w, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Failed to lookup API")
-		return
 	}
 
-	// Verify subscription belongs to this API
-	if matchedSub.APIID != api.ID {
-		response.Error(w, http.StatusForbidden, "FORBIDDEN", "API key does not have access to this API")
+	if api == nil {
+		response.Error(w, http.StatusNotFound, "API_NOT_FOUND", "API not found")
 		return
 	}
 
@@ -124,7 +75,7 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 7. Proxy request to API.base_url + remaining path
+	// Proxy request to API.base_url + remaining path
 	targetURL := strings.TrimRight(api.BaseURL, "/")
 	remainder := chi.URLParam(r, "*")
 	if remainder != "" {
@@ -174,9 +125,9 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 
-	// Copy upstream response headers
+	// Copy upstream response headers (excluding hop-by-hop and x-ratelimit-*)
 	for k, vv := range resp.Header {
-		if isHopByHopHeader(k) {
+		if isHopByHopHeader(k) || strings.HasPrefix(strings.ToLower(k), "x-ratelimit-") {
 			continue
 		}
 		for _, v := range vv {
@@ -186,22 +137,6 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(resp.StatusCode)
 	_, _ = io.Copy(w, resp.Body)
-
-	// 8. Record usage event asynchronously
-	durationMs := int(time.Since(startTime).Milliseconds())
-	endpoint := r.URL.Path
-	method := r.Method
-	subID := matchedSub.ID
-	apiID := api.ID
-	respStatus := resp.StatusCode
-
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		if err := h.repo.RecordUsage(ctx, subID, apiID, endpoint, method, respStatus, durationMs); err != nil {
-			h.logger.Error("failed to record usage event", slog.Any("error", err))
-		}
-	}()
 }
 
 var hopByHopHeaders = map[string]bool{
