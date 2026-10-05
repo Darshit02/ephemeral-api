@@ -10,12 +10,16 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
+	"ephemeral/apps/core-api/internal/handler"
+	"ephemeral/apps/core-api/internal/repository"
+	"ephemeral/apps/core-api/internal/service"
 	"ephemeral/packages/go-shared/middleware"
 	"ephemeral/packages/go-shared/response"
 )
 
 type RouterDeps struct {
 	ServiceName string
+	JWTSecret   string
 	DB          *pgxpool.Pool
 	Redis       *redis.Client
 	Logger      *slog.Logger
@@ -29,6 +33,7 @@ func New(deps RouterDeps) *chi.Mux {
 	r.Use(middleware.Recoverer(deps.Logger))
 	r.Use(middleware.CORS())
 
+	// Health check endpoints
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		response.JSON(w, http.StatusOK, map[string]string{
 			"status":  "ok",
@@ -75,6 +80,24 @@ func New(deps RouterDeps) *chi.Mux {
 			"service": "redis",
 		})
 	})
+
+	// Auth endpoints (available when database is configured)
+	if deps.DB != nil {
+		userRepo := repository.NewUserRepository(deps.DB)
+		authService := service.NewAuthService(userRepo, deps.JWTSecret)
+		authHandler := handler.NewAuthHandler(authService)
+
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/register", authHandler.Register)
+			r.Post("/login", authHandler.Login)
+
+			r.Group(func(r chi.Router) {
+				r.Use(middleware.Auth(deps.JWTSecret, authService.GetUserByID))
+				r.Get("/me", authHandler.Me)
+				r.Post("/logout", authHandler.Logout)
+			})
+		})
+	}
 
 	return r
 }

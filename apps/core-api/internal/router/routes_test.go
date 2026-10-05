@@ -12,6 +12,7 @@ import (
 func TestCoreAPIRouterHealth(t *testing.T) {
 	r := router.New(router.RouterDeps{
 		ServiceName: "core-api",
+		JWTSecret:   "test-secret",
 		DB:          nil,
 		Redis:       nil,
 		Logger:      nil,
