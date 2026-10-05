@@ -14,6 +14,7 @@ import (
 	"ephemeral/apps/core-api/internal/repository"
 	"ephemeral/apps/core-api/internal/service"
 	"ephemeral/packages/go-shared/middleware"
+	"ephemeral/packages/go-shared/models"
 	"ephemeral/packages/go-shared/response"
 )
 
@@ -81,12 +82,17 @@ func New(deps RouterDeps) *chi.Mux {
 		})
 	})
 
-	// Auth endpoints (available when database is configured)
+	// Business endpoints (available when database is configured)
 	if deps.DB != nil {
 		userRepo := repository.NewUserRepository(deps.DB)
 		authService := service.NewAuthService(userRepo, deps.JWTSecret)
 		authHandler := handler.NewAuthHandler(authService)
 
+		apiRepo := repository.NewAPIRepository(deps.DB)
+		apiService := service.NewAPIService(apiRepo)
+		apiHandler := handler.NewAPIHandler(apiService)
+
+		// Auth endpoints
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", authHandler.Register)
 			r.Post("/login", authHandler.Login)
@@ -96,6 +102,22 @@ func New(deps RouterDeps) *chi.Mux {
 				r.Get("/me", authHandler.Me)
 				r.Post("/logout", authHandler.Logout)
 			})
+		})
+
+		// Public API catalog
+		r.Get("/apis", apiHandler.ListPublic)
+		r.Get("/apis/{slug}", apiHandler.GetPublic)
+
+		// Provider API administration
+		r.Route("/admin/apis", func(r chi.Router) {
+			r.Use(middleware.Auth(deps.JWTSecret, authService.GetUserByID))
+			r.Use(middleware.RequireRole(models.RoleProvider, models.RoleAdmin))
+
+			r.Post("/", apiHandler.Create)
+			r.Get("/", apiHandler.ListOwn)
+			r.Get("/{id}", apiHandler.GetOwn)
+			r.Put("/{id}", apiHandler.Update)
+			r.Delete("/{id}", apiHandler.Delete)
 		})
 	}
 
