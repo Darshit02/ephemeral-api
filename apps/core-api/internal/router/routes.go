@@ -96,6 +96,10 @@ func New(deps RouterDeps) *chi.Mux {
 		planService := service.NewPlanService(planRepo, apiRepo)
 		planHandler := handler.NewPlanHandler(planService)
 
+		subRepo := repository.NewSubscriptionRepository(deps.DB)
+		subService := service.NewSubscriptionService(subRepo, planRepo, apiRepo)
+		subHandler := handler.NewSubscriptionHandler(subService)
+
 		// Auth endpoints
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", authHandler.Register)
@@ -112,6 +116,17 @@ func New(deps RouterDeps) *chi.Mux {
 		r.Get("/apis", apiHandler.ListPublic)
 		r.Get("/apis/{slug}", apiHandler.GetPublic)
 		r.Get("/apis/{slug}/plans", planHandler.ListPublic)
+
+		// Subscriptions
+		r.Route("/subscriptions", func(r chi.Router) {
+			r.Use(middleware.Auth(deps.JWTSecret, authService.GetUserByID))
+
+			r.Post("/", subHandler.Subscribe)
+			r.Get("/", subHandler.ListMy)
+			r.Get("/{id}", subHandler.GetOne)
+			r.Delete("/{id}", subHandler.Cancel)
+			r.Post("/{id}/rotate-key", subHandler.RotateKey)
+		})
 
 		// Provider administration
 		r.Route("/admin", func(r chi.Router) {
