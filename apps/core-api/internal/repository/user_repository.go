@@ -128,3 +128,21 @@ func (r *UserRepository) FindByID(ctx context.Context, id string) (*models.User,
 	user.Role = models.UserRole(roleStr)
 	return &user, nil
 }
+
+func (r *UserRepository) UpdateStripeCustomerID(ctx context.Context, userID, stripeCustomerID string) error {
+	query := `UPDATE users SET stripe_customer_id = $1, updated_at = NOW() WHERE id = $2`
+	_, err := r.pool.Exec(ctx, query, stripeCustomerID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to update stripe customer id: %w", err)
+	}
+	return nil
+}
+
+func (r *UserRepository) UpdateStripeAccountID(ctx context.Context, userID, stripeAccountID string) error {
+	query := `UPDATE users SET stripe_account_id = $1, updated_at = NOW() WHERE id = $2`
+	_, err := r.pool.Exec(ctx, query, stripeAccountID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to update stripe account id: %w", err)
+	}
+	return nil
+}

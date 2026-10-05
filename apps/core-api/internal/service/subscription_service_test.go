@@ -9,7 +9,7 @@ import (
 )
 
 func TestSubscriptionServiceValidation(t *testing.T) {
-	svc := service.NewSubscriptionService(nil, nil, nil)
+	svc := service.NewSubscriptionService(nil, nil, nil, nil, nil, nil)
 	if svc == nil {
 		t.Fatal("expected non-nil service")
 	}

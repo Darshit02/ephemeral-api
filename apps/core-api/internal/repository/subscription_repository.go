@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -235,6 +236,82 @@ func (r *SubscriptionRepository) UpdateStatus(ctx context.Context, id string, st
 		return nil, fmt.Errorf("failed to update subscription status: %w", err)
 	}
 
+	sub.Status = models.SubscriptionStatus(statusStr)
+	return &sub, nil
+}
+
+func (r *SubscriptionRepository) FindByStripeSubscriptionID(ctx context.Context, stripeSubID string) (*models.Subscription, error) {
+	query := `
+		SELECT id, user_id, plan_id, api_key_hash, api_key_prefix, stripe_subscription_id, status, current_period_start, current_period_end, created_at
+		FROM subscriptions
+		WHERE stripe_subscription_id = $1
+		LIMIT 1
+	`
+	var sub models.Subscription
+	var statusStr string
+	err := r.pool.QueryRow(ctx, query, stripeSubID).Scan(
+		&sub.ID,
+		&sub.UserID,
+		&sub.PlanID,
+		&sub.APIKeyHash,
+		&sub.APIKeyPrefix,
+		&sub.StripeSubscriptionID,
+		&statusStr,
+		&sub.CurrentPeriodStart,
+		&sub.CurrentPeriodEnd,
+		&sub.CreatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to query subscription by stripe id: %w", err)
+	}
+	sub.Status = models.SubscriptionStatus(statusStr)
+	return &sub, nil
+}
+
+func (r *SubscriptionRepository) UpdateStatusByStripeID(ctx context.Context, stripeSubID string, status models.SubscriptionStatus, periodEnd *time.Time) (*models.Subscription, error) {
+	var query string
+	var row pgx.Row
+	if periodEnd != nil {
+		query = `
+			UPDATE subscriptions
+			SET status = $1, current_period_end = $2
+			WHERE stripe_subscription_id = $3
+			RETURNING id, user_id, plan_id, api_key_hash, api_key_prefix, stripe_subscription_id, status, current_period_start, current_period_end, created_at
+		`
+		row = r.pool.QueryRow(ctx, query, string(status), *periodEnd, stripeSubID)
+	} else {
+		query = `
+			UPDATE subscriptions
+			SET status = $1
+			WHERE stripe_subscription_id = $2
+			RETURNING id, user_id, plan_id, api_key_hash, api_key_prefix, stripe_subscription_id, status, current_period_start, current_period_end, created_at
+		`
+		row = r.pool.QueryRow(ctx, query, string(status), stripeSubID)
+	}
+
+	var sub models.Subscription
+	var statusStr string
+	err := row.Scan(
+		&sub.ID,
+		&sub.UserID,
+		&sub.PlanID,
+		&sub.APIKeyHash,
+		&sub.APIKeyPrefix,
+		&sub.StripeSubscriptionID,
+		&statusStr,
+		&sub.CurrentPeriodStart,
+		&sub.CurrentPeriodEnd,
+		&sub.CreatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrSubscriptionNotFound
+		}
+		return nil, fmt.Errorf("failed to update subscription by stripe id: %w", err)
+	}
 	sub.Status = models.SubscriptionStatus(statusStr)
 	return &sub, nil
 }

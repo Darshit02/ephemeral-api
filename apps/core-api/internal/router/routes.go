@@ -19,11 +19,13 @@ import (
 )
 
 type RouterDeps struct {
-	ServiceName string
-	JWTSecret   string
-	DB          *pgxpool.Pool
-	Redis       *redis.Client
-	Logger      *slog.Logger
+	ServiceName         string
+	JWTSecret           string
+	DB                  *pgxpool.Pool
+	Redis               *redis.Client
+	Logger              *slog.Logger
+	StripeSecretKey     string
+	StripeWebhookSecret string
 }
 
 func New(deps RouterDeps) *chi.Mux {
@@ -96,9 +98,14 @@ func New(deps RouterDeps) *chi.Mux {
 		planService := service.NewPlanService(planRepo, apiRepo)
 		planHandler := handler.NewPlanHandler(planService)
 
+		stripeSvc := service.NewStripeService(deps.StripeSecretKey, deps.StripeWebhookSecret, deps.Logger)
 		subRepo := repository.NewSubscriptionRepository(deps.DB)
-		subService := service.NewSubscriptionService(subRepo, planRepo, apiRepo)
+		subService := service.NewSubscriptionService(subRepo, planRepo, apiRepo, userRepo, stripeSvc, deps.Logger)
 		subHandler := handler.NewSubscriptionHandler(subService)
+		webhookHandler := handler.NewWebhookHandler(subService)
+
+		// Stripe Webhooks (verified via Stripe signature)
+		r.Post("/webhooks/stripe", webhookHandler.HandleStripe)
 
 		// Auth endpoints
 		r.Route("/auth", func(r chi.Router) {

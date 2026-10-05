@@ -60,11 +60,13 @@ func main() {
 	}
 
 	r := router.New(router.RouterDeps{
-		ServiceName: cfg.ServiceName,
-		JWTSecret:   cfg.JWTSecret,
-		DB:          pgPool,
-		Redis:       redisClient,
-		Logger:      logger,
+		ServiceName:         cfg.ServiceName,
+		JWTSecret:           cfg.JWTSecret,
+		DB:                  pgPool,
+		Redis:               redisClient,
+		Logger:              logger,
+		StripeSecretKey:     cfg.StripeSecretKey,
+		StripeWebhookSecret: cfg.StripeWebhookSecret,
 	})
 
 	srv := &http.Server{
