@@ -7,14 +7,18 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
+	"ephemeral/apps/gateway/internal/proxy"
+	"ephemeral/apps/gateway/internal/repository"
 	"ephemeral/packages/go-shared/middleware"
 	"ephemeral/packages/go-shared/response"
 )
 
 type GatewayRouterDeps struct {
 	ServiceName string
+	DB          *pgxpool.Pool
 	Redis       *redis.Client
 	Logger      *slog.Logger
 }
@@ -53,6 +57,14 @@ func New(deps GatewayRouterDeps) *chi.Mux {
 			"service": "redis",
 		})
 	})
+
+	if deps.DB != nil {
+		repo := repository.NewGatewayRepository(deps.DB)
+		proxyHandler := proxy.NewProxyHandler(repo, deps.Logger)
+
+		r.HandleFunc("/v1/{slug}", proxyHandler.ServeHTTP)
+		r.HandleFunc("/v1/{slug}/*", proxyHandler.ServeHTTP)
+	}
 
 	return r
 }

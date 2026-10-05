@@ -12,6 +12,7 @@ import (
 func TestGatewayRouterHealth(t *testing.T) {
 	r := router.New(router.GatewayRouterDeps{
 		ServiceName: "gateway",
+		DB:          nil,
 		Redis:       nil,
 		Logger:      nil,
 	})

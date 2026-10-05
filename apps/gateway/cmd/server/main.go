@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
 	"ephemeral/apps/gateway/internal/router"
@@ -33,6 +34,16 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	var pgPool *pgxpool.Pool
+	pool, err := db.NewPostgresPool(ctx, cfg.DatabaseURL)
+	if err != nil {
+		logger.Error("failed to connect to postgres", slog.Any("error", err))
+	} else {
+		pgPool = pool
+		logger.Info("connected to postgres")
+		defer pgPool.Close()
+	}
+
 	var redisClient *redis.Client
 	rdb, err := db.NewRedisClient(ctx, cfg.RedisURL)
 	if err != nil {
@@ -45,6 +56,7 @@ func main() {
 
 	r := router.New(router.GatewayRouterDeps{
 		ServiceName: cfg.ServiceName,
+		DB:          pgPool,
 		Redis:       redisClient,
 		Logger:      logger,
 	})
