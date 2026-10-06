@@ -211,3 +211,173 @@ export function Cancel01Icon({ size = 20, strokeWidth = 1.5, ...props }: IconPro
     </svg>
   )
 }
+
+/* Consumer Portal Additional Icons */
+
+export function Home01Icon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <path d="M9 22V12h6v10" />
+    </svg>
+  )
+}
+
+export function Store01Icon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <path d="M3 3h18v4H3zM3 7l2 14h14l2-14" />
+      <path d="M9 11v6M15 11v6" />
+    </svg>
+  )
+}
+
+export function Search01Icon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <circle cx="11" cy="11" r="8" />
+      <path d="M21 21l-4.35-4.35" />
+    </svg>
+  )
+}
+
+export function LockIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <rect x="5" y="11" width="14" height="10" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
+  )
+}
+
+export function UnlockIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <rect x="5" y="11" width="14" height="10" />
+      <path d="M8 11V7a4 4 0 0 1 8 0" />
+    </svg>
+  )
+}
+
+export function PlayIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </svg>
+  )
+}
+
+export function ShoppingCart01Icon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="20" cy="21" r="1" />
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+    </svg>
+  )
+}
+
+export function CreditCardIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <rect x="2" y="5" width="20" height="14" />
+      <line x1="2" y1="10" x2="22" y2="10" />
+    </svg>
+  )
+}
+
+export function Logout01Icon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  )
+}
+
+export function UserCircleIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="9" r="3" />
+      <path d="M6 19a6 6 0 0 1 12 0" />
+    </svg>
+  )
+}
+
+export function FilterIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    </svg>
+  )
+}
+
+export function SortingIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <path d="M11 5h10M11 9h7M11 13h4M3 17l3 3 3-3M6 18V4" />
+    </svg>
+  )
+}
+
+export function ArrowLeft02Icon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <path d="M19 12H5M11 19l-7-7 7-7" />
+    </svg>
+  )
+}
+
+export function RefreshIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+    </svg>
+  )
+}
+
+/* Convenient Icons Namespace mapping */
+export const Icons = {
+  dashboard: DashboardBrowsingIcon,
+  api: ApiIcon,
+  plans: PricingIcon,
+  pricing: PricingIcon,
+  analytics: Analytics01Icon,
+  usage: Analytics01Icon,
+  revenue: MoneyBagIcon,
+  settings: Settings01Icon,
+  add: PlusSignIcon,
+  edit: PencilEdit01Icon,
+  delete: Delete01Icon,
+  view: EyeIcon,
+  docs: Book02Icon,
+  file: File01Icon,
+  code: SourceCodeIcon,
+  users: UserGroupIcon,
+  keys: Key01Icon,
+  key: Key01Icon,
+  chart: BarChartIcon,
+  calendar: Calendar03Icon,
+  arrowRight: ArrowRight01Icon,
+  external: ArrowUpRight01Icon,
+  check: CheckmarkCircle02Icon,
+  warning: Alert02Icon,
+  copy: Copy01Icon,
+  menu: Menu01Icon,
+  close: Cancel01Icon,
+  home: Home01Icon,
+  store: Store01Icon,
+  marketplace: Store01Icon,
+  search: Search01Icon,
+  lock: LockIcon,
+  unlock: UnlockIcon,
+  play: PlayIcon,
+  cart: ShoppingCart01Icon,
+  card: CreditCardIcon,
+  logout: Logout01Icon,
+  user: UserCircleIcon,
+  filter: FilterIcon,
+  sort: SortingIcon,
+}

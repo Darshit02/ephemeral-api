@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { cn } from '@/lib/utils'
+import { TableSkeleton } from '@/components/publisher/table-skeleton'
 
 export interface Column<T> {
   key: string
@@ -18,6 +19,7 @@ export interface DataTableProps<T> {
   onRowClick?: (item: T) => void
   emptyMessage?: string
   className?: string
+  loading?: boolean
 }
 
 export function DataTable<T>({
@@ -27,7 +29,12 @@ export function DataTable<T>({
   onRowClick,
   emptyMessage = 'No records found in this view.',
   className,
+  loading = false,
 }: DataTableProps<T>) {
+  if (loading) {
+    return <TableSkeleton columns={columns.length} rows={5} className={className} />
+  }
+
   return (
     <div className={cn('w-full border border-black overflow-x-auto', className)}>
       <table className="w-full text-left border-collapse">

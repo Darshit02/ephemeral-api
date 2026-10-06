@@ -3,13 +3,17 @@ import { cn } from "@/lib/utils"
 
 export interface SectionRuleProps {
   variant?: "thin" | "medium" | "thick" | "ultra"
+  thickness?: "thin" | "medium" | "thick" | "ultra"
   className?: string
 }
 
 export function SectionRule({
-  variant = "thick",
+  variant,
+  thickness,
   className,
 }: SectionRuleProps) {
+  const chosen = thickness ?? variant ?? "thick"
+
   const heightClasses = {
     thin: "h-px bg-black",
     medium: "h-0.5 bg-black",
@@ -22,7 +26,7 @@ export function SectionRule({
       role="separator"
       className={cn(
         "w-full my-16 md:my-24 shrink-0 select-none",
-        heightClasses[variant],
+        heightClasses[chosen],
         className
       )}
     />
