@@ -1,4 +1,5 @@
 import React from 'react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Hero } from '@/components/publisher/hero'
 import {
@@ -10,6 +11,12 @@ import {
   ArrowRight01Icon,
   ArrowUpRight01Icon,
 } from '@/components/icons'
+
+export const metadata: Metadata = {
+  title: 'Documentation // Ephemeral Gateway & SDK',
+  description:
+    'Comprehensive technical documentation for the Ephemeral API platform: cryptographic bearer authentication, distributed rate limiting, and gateway addressing.',
+}
 
 export default function MarketingDocsPage() {
   const docSections = [

@@ -1,4 +1,5 @@
 import React from 'react'
+import type { Metadata } from 'next'
 import { MarketingHero } from '@/components/marketing/hero'
 import { MarketingStatsSection } from '@/components/marketing/stats-section'
 import { FeatureCard } from '@/components/marketing/feature-card'
@@ -10,6 +11,12 @@ import {
   Analytics01Icon,
   PricingIcon,
 } from '@/components/icons'
+
+export const metadata: Metadata = {
+  title: 'Ephemeral // Live API Marketplace & Unified Gateway',
+  description:
+    'A minimalist API marketplace where developers publish, rent, and monetize live APIs with zero friction and instant cryptographic credentials.',
+}
 
 export default function MarketingLandingPage() {
   const features = [
