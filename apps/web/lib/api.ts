@@ -1,7 +1,5 @@
 import { useAuth } from './auth'
-
-const CORE_API_URL = process.env.NEXT_PUBLIC_CORE_API || 'http://localhost:8081'
-const GATEWAY_URL = process.env.NEXT_PUBLIC_GATEWAY || 'http://localhost:8080'
+import { env } from './env'
 
 interface ApiOptions extends RequestInit {
   token?: string | null
@@ -51,6 +49,18 @@ async function request<T>(
   }
 
   if (!response.ok) {
+    if (response.status === 401) {
+      useAuth.getState().logout()
+      if (typeof window !== 'undefined') {
+        document.cookie = 'ephemeral-token=; path=/; max-age=0; SameSite=Lax'
+        const currentPath = window.location.pathname
+        if (!currentPath.startsWith('/login') && !currentPath.startsWith('/register')) {
+          const next = encodeURIComponent(window.location.pathname + window.location.search)
+          window.location.href = `/login?expired=1&next=${next}`
+        }
+      }
+    }
+
     const errorMsg =
       data?.error?.message ||
       data?.message ||
@@ -70,21 +80,39 @@ async function request<T>(
 export const api = {
   core: {
     get: <T>(path: string, options?: ApiOptions) =>
-      request<T>(CORE_API_URL, path, { ...options, method: 'GET' }),
+      request<T>(env.CORE_API_URL, path, { ...options, method: 'GET' }),
     post: <T>(path: string, body?: any, options?: ApiOptions) =>
-      request<T>(CORE_API_URL, path, {
+      request<T>(env.CORE_API_URL, path, {
         ...options,
         method: 'POST',
         body: body ? JSON.stringify(body) : undefined,
       }),
     put: <T>(path: string, body?: any, options?: ApiOptions) =>
-      request<T>(CORE_API_URL, path, {
+      request<T>(env.CORE_API_URL, path, {
         ...options,
         method: 'PUT',
         body: body ? JSON.stringify(body) : undefined,
       }),
     del: <T>(path: string, options?: ApiOptions) =>
-      request<T>(CORE_API_URL, path, { ...options, method: 'DELETE' }),
+      request<T>(env.CORE_API_URL, path, { ...options, method: 'DELETE' }),
+  },
+  admin: {
+    get: <T>(path: string, options?: ApiOptions) =>
+      request<T>(env.ADMIN_API_URL, path, { ...options, method: 'GET' }),
+    post: <T>(path: string, body?: any, options?: ApiOptions) =>
+      request<T>(env.ADMIN_API_URL, path, {
+        ...options,
+        method: 'POST',
+        body: body ? JSON.stringify(body) : undefined,
+      }),
+    put: <T>(path: string, body?: any, options?: ApiOptions) =>
+      request<T>(env.ADMIN_API_URL, path, {
+        ...options,
+        method: 'PUT',
+        body: body ? JSON.stringify(body) : undefined,
+      }),
+    del: <T>(path: string, options?: ApiOptions) =>
+      request<T>(env.ADMIN_API_URL, path, { ...options, method: 'DELETE' }),
   },
   gateway: {
     call: async (
@@ -96,7 +124,7 @@ export const api = {
       body?: any
     ) => {
       const cleanPath = subpath.startsWith('/') ? subpath.slice(1) : subpath
-      const url = `${GATEWAY_URL}/v1/${slug}/${cleanPath}`
+      const url = `${env.GATEWAY_URL}/v1/${slug}/${cleanPath}`
 
       const reqHeaders = new Headers(headers)
       reqHeaders.set('X-API-Key', apiKey)

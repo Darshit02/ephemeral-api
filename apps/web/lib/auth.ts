@@ -27,18 +27,26 @@ export const useAuth = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isHydrated: false,
-      setAuth: (token: string, user: User) =>
+      setAuth: (token: string, user: User) => {
+        if (typeof document !== 'undefined') {
+          document.cookie = `ephemeral-token=${encodeURIComponent(token)}; path=/; max-age=604800; SameSite=Lax`
+        }
         set({
           token,
           user,
           isAuthenticated: Boolean(token),
-        }),
-      logout: () =>
+        })
+      },
+      logout: () => {
+        if (typeof document !== 'undefined') {
+          document.cookie = 'ephemeral-token=; path=/; max-age=0; SameSite=Lax'
+        }
         set({
           token: null,
           user: null,
           isAuthenticated: false,
-        }),
+        })
+      },
       setHydrated: (val: boolean) => set({ isHydrated: val }),
     }),
     {
@@ -54,6 +62,9 @@ export const useAuth = create<AuthState>()(
         }
       }),
       onRehydrateStorage: () => (state) => {
+        if (state?.token && typeof document !== 'undefined') {
+          document.cookie = `ephemeral-token=${encodeURIComponent(state.token)}; path=/; max-age=604800; SameSite=Lax`
+        }
         state?.setHydrated(true)
       },
     }
