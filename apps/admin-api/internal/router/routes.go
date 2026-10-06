@@ -10,12 +10,17 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 
+	"ephemeral/apps/admin-api/internal/handler"
+	"ephemeral/apps/admin-api/internal/repository"
+	"ephemeral/apps/admin-api/internal/service"
 	"ephemeral/packages/go-shared/middleware"
+	"ephemeral/packages/go-shared/models"
 	"ephemeral/packages/go-shared/response"
 )
 
 type AdminRouterDeps struct {
 	ServiceName string
+	JWTSecret   string
 	DB          *pgxpool.Pool
 	Redis       *redis.Client
 	Logger      *slog.Logger
@@ -75,6 +80,25 @@ func New(deps AdminRouterDeps) *chi.Mux {
 			"service": "redis",
 		})
 	})
+
+	if deps.DB != nil {
+		analyticsRepo := repository.NewAnalyticsRepository(deps.DB)
+		analyticsSvc := service.NewAnalyticsService(analyticsRepo)
+		analyticsHandler := handler.NewAnalyticsHandler(analyticsSvc)
+
+		r.Route("/admin", func(r chi.Router) {
+			r.Use(middleware.Auth(deps.JWTSecret, nil))
+
+			// Time-series usage metrics
+			r.Get("/apis/{id}/usage", analyticsHandler.GetAPIUsage)
+
+			// Consumer listing
+			r.Get("/apis/{id}/consumers", analyticsHandler.GetAPIConsumers)
+
+			// Revenue summary (provider or admin only)
+			r.With(middleware.RequireRole(models.RoleProvider, models.RoleAdmin)).Get("/revenue", analyticsHandler.GetRevenueSummary)
+		})
+	}
 
 	return r
 }

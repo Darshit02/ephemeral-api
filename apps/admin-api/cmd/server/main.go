@@ -56,6 +56,7 @@ func main() {
 
 	r := router.New(router.AdminRouterDeps{
 		ServiceName: cfg.ServiceName,
+		JWTSecret:   cfg.JWTSecret,
 		DB:          pgPool,
 		Redis:       redisClient,
 		Logger:      logger,
