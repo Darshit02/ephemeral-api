@@ -17,22 +17,22 @@ import {
 const NAV_ITEMS = [
   {
     name: 'DASHBOARD',
-    href: '/dashboard',
+    href: '/publisher/dashboard',
     icon: DashboardBrowsingIcon,
   },
   {
     name: 'APIS',
-    href: '/apis',
+    href: '/publisher/apis',
     icon: ApiIcon,
   },
   {
     name: 'REVENUE',
-    href: '/revenue',
+    href: '/publisher/revenue',
     icon: MoneyBagIcon,
   },
   {
     name: 'SETTINGS',
-    href: '/settings',
+    href: '/publisher/settings',
     icon: Settings01Icon,
   },
 ]
@@ -42,8 +42,8 @@ export function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const isNavActive = (href: string) => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard' || pathname === '/'
+    if (href === '/publisher/dashboard') {
+      return pathname === '/publisher/dashboard' || pathname === '/publisher'
     }
     return pathname.startsWith(href)
   }
@@ -52,7 +52,7 @@ export function Sidebar() {
     <div className="flex flex-col h-full bg-white select-none">
       {/* Brand Header */}
       <div className="p-6 border-b border-black">
-        <Link href="/dashboard" className="block" onClick={() => setMobileOpen(false)}>
+        <Link href="/publisher/dashboard" className="block" onClick={() => setMobileOpen(false)}>
           <span className="font-display text-2xl font-bold tracking-tight text-black block leading-none">
             EPHEMERAL
           </span>

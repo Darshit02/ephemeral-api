@@ -33,17 +33,17 @@ export default function ApiDetailLayout({
   }
 
   const tabs = [
-    { label: 'OVERVIEW', href: `/apis/${id}` },
-    { label: 'PLANS & PRICING', href: `/apis/${id}/plans` },
-    { label: 'ANALYTICS & LOGS', href: `/apis/${id}/analytics` },
-    { label: 'CONFIGURATION', href: `/apis/${id}/settings` },
+    { label: 'OVERVIEW', href: `/publisher/apis/${id}` },
+    { label: 'PLANS & PRICING', href: `/publisher/apis/${id}/plans` },
+    { label: 'ANALYTICS & LOGS', href: `/publisher/apis/${id}/analytics` },
+    { label: 'CONFIGURATION', href: `/publisher/apis/${id}/settings` },
   ]
 
   return (
     <div className="space-y-8">
       {/* Editorial Breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#525252]">
-        <Link href="/apis" className="hover:text-black hover:underline">
+        <Link href="/publisher/apis" className="hover:text-black hover:underline">
           CATALOG
         </Link>
         <span>/</span>

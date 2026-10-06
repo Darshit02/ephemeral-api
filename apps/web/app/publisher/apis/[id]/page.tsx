@@ -129,7 +129,7 @@ export default function ApiOverviewPage() {
               <h2 className="font-display text-xl font-bold tracking-tight text-black">
                 Upstream Target &amp; Proxy Configuration
               </h2>
-              <Link href={`/apis/${id}/settings`}>
+              <Link href={`/publisher/apis/${id}/settings`}>
                 <Button variant="ghost" className="text-xs font-mono uppercase tracking-widest p-0">
                   EDIT &rarr;
                 </Button>
@@ -182,7 +182,7 @@ export default function ApiOverviewPage() {
               <h2 className="font-display text-xl font-bold tracking-tight text-black">
                 Configured Monetization Plans
               </h2>
-              <Link href={`/apis/${id}/plans`}>
+              <Link href={`/publisher/apis/${id}/plans`}>
                 <Button variant="ghost" className="text-xs font-mono uppercase tracking-widest p-0">
                   MANAGE ALL PLANS &rarr;
                 </Button>

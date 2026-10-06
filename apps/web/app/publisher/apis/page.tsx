@@ -124,7 +124,7 @@ export default function PublisherApisPage() {
           subtitle="All API products published under your organization. Manage versions, pricing schemas, and origin endpoints."
           className="pb-0"
         />
-        <Link href="/apis/new">
+        <Link href="/publisher/apis/new">
           <Button variant="primary" className="flex items-center gap-2">
             <PlusSignIcon size={16} />
             <span>PUBLISH NEW API</span>
@@ -191,7 +191,7 @@ export default function PublisherApisPage() {
                     <span className="font-mono text-[10px] uppercase tracking-widest text-[#525252] block">
                       {api.category} &bull; {api.version}
                     </span>
-                    <Link href={`/apis/${api.id}`}>
+                    <Link href={`/publisher/apis/${api.id}`}>
                       <h3 className="font-display text-2xl font-bold tracking-tight text-black group-hover:underline mt-1">
                         {api.name}
                       </h3>
@@ -245,20 +245,20 @@ export default function PublisherApisPage() {
 
                 <div className="flex items-center gap-3">
                   <Link
-                    href={`/apis/${api.id}/analytics`}
+                    href={`/publisher/apis/${api.id}/analytics`}
                     title="Analytics"
                     className="p-2 border border-transparent hover:border-black transition-none"
                   >
                     <Analytics01Icon size={16} />
                   </Link>
                   <Link
-                    href={`/apis/${api.id}/settings`}
+                    href={`/publisher/apis/${api.id}/settings`}
                     title="Settings"
                     className="p-2 border border-transparent hover:border-black transition-none"
                   >
                     <Settings01Icon size={16} />
                   </Link>
-                  <Link href={`/apis/${api.id}`}>
+                  <Link href={`/publisher/apis/${api.id}`}>
                     <Button variant="secondary" className="text-[10px] py-1.5 px-3">
                       <span>MANAGE</span>
                       <ArrowRight01Icon size={12} className="ml-1 inline" />

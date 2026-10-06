@@ -49,7 +49,7 @@ export default function ApiSettingsPage() {
   }
 
   const handleConfirmDelete = () => {
-    router.push('/apis')
+    router.push('/publisher/apis')
   }
 
   return (

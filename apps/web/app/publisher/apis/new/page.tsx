@@ -73,7 +73,7 @@ export default function NewApiPage() {
     setIsSubmitting(true)
     setTimeout(() => {
       setIsSubmitting(false)
-      router.push('/apis')
+      router.push('/publisher/apis')
     }, 500)
   }
 
@@ -328,7 +328,7 @@ export default function NewApiPage() {
 
           {/* Form Submit Footer */}
           <div className="border-t-2 border-black pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <Link href="/apis">
+            <Link href="/publisher/apis">
               <Button variant="ghost" className="font-mono text-xs uppercase tracking-widest">
                 &larr; CANCEL &amp; RETURN
               </Button>

@@ -153,7 +153,7 @@ export default function PublisherDashboardPage() {
           className="pb-0"
         />
         <div className="flex items-center gap-3">
-          <Link href="/apis/new">
+          <Link href="/publisher/apis/new">
             <Button variant="primary" className="flex items-center gap-2">
               <PlusSignIcon size={16} />
               <span>PUBLISH NEW API</span>
@@ -242,7 +242,7 @@ export default function PublisherDashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
-            href="/apis/new"
+            href="/publisher/apis/new"
             className="border border-black p-6 bg-white hover:bg-black hover:text-white transition-none group block"
           >
             <div className="flex items-center justify-between mb-4">
@@ -322,7 +322,7 @@ export default function PublisherDashboardPage() {
               Top traffic-generating services managed under your publisher tenant.
             </p>
           </div>
-          <Link href="/apis">
+          <Link href="/publisher/apis">
             <Button variant="ghost" className="font-mono text-xs uppercase tracking-widest">
               VIEW FULL CATALOG &rarr;
             </Button>
@@ -334,7 +334,7 @@ export default function PublisherDashboardPage() {
           data={RECENT_APIS}
           keyExtractor={(item) => item.id}
           onRowClick={(item) => {
-            window.location.href = `/apis/${item.id}`
+            window.location.href = `/publisher/apis/${item.id}`
           }}
         />
       </section>
