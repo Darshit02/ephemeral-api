@@ -63,13 +63,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     }
   }, [addToast])
 
+  const toastFn = ((message: string, title?: string) => {
+    addToast({ message, title, kind: 'default' })
+  }) as ToastContextValue['toast']
+  toastFn.default = (message: string, title?: string) => addToast({ message, title, kind: 'default' })
+  toastFn.success = (message: string, title?: string) => addToast({ message, title, kind: 'success' })
+  toastFn.error = (message: string, title?: string) => addToast({ message, title, kind: 'error' })
+
   const contextValue: ToastContextValue = {
     toasts,
-    toast: {
-      default: (m, t) => addToast({ message: m, title: t, kind: 'default' }),
-      success: (m, t) => addToast({ message: m, title: t, kind: 'success' }),
-      error: (m, t) => addToast({ message: m, title: t, kind: 'error' }),
-    } as any,
+    toast: toastFn,
     removeToast,
   }
 

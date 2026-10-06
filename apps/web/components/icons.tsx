@@ -322,6 +322,22 @@ export function SortingIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProp
   )
 }
 
+export function ArrowLeft02Icon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <path d="M19 12H5M11 19l-7-7 7-7" />
+    </svg>
+  )
+}
+
+export function RefreshIcon({ size = 20, strokeWidth = 1.5, ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="square" strokeLinejoin="miter" {...props}>
+      <path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+    </svg>
+  )
+}
+
 /* Convenient Icons Namespace mapping */
 export const Icons = {
   dashboard: DashboardBrowsingIcon,
