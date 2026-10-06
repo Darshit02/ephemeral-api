@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import { Hero } from '@/components/publisher/hero'
 import { SectionRule } from '@/components/publisher/section-rule'
 import { Button } from '@/components/ui/button'

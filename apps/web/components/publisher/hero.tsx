@@ -3,8 +3,10 @@ import { cn } from "@/lib/utils"
 
 export interface HeroProps {
   eyebrow?: string
+  supertitle?: string
   title: string
   description?: string
+  subtitle?: string
   size?: "5xl" | "6xl" | "7xl" | "8xl" | "9xl"
   decoration?: boolean
   className?: string
@@ -13,13 +15,18 @@ export interface HeroProps {
 
 export function Hero({
   eyebrow,
+  supertitle,
   title,
   description,
+  subtitle,
   size = "8xl",
   decoration = true,
   className,
   action,
 }: HeroProps) {
+  const displayEyebrow = supertitle ?? eyebrow
+  const displayDesc = subtitle ?? description
+
   const sizeClasses = {
     "5xl": "text-4xl sm:text-5xl",
     "6xl": "text-4xl sm:text-5xl md:text-6xl",
@@ -32,24 +39,24 @@ export function Hero({
     <header className={cn("pt-6 pb-12 md:pb-16", className)}>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          {eyebrow && (
+          {displayEyebrow && (
             <p className="font-mono text-xs uppercase tracking-widest text-[#525252] mb-4 select-none">
-              {eyebrow}
+              {displayEyebrow}
             </p>
           )}
 
           <h1
             className={cn(
-              "font-serif font-normal tracking-tighter leading-none text-black",
+              "font-display font-normal tracking-tighter leading-none text-black",
               sizeClasses[size]
             )}
           >
             {title}
           </h1>
 
-          {description && (
+          {displayDesc && (
             <p className="mt-4 text-base md:text-lg text-[#525252] max-w-2xl font-serif leading-relaxed">
-              {description}
+              {displayDesc}
             </p>
           )}
         </div>
