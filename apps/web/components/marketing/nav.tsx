@@ -28,7 +28,7 @@ export function MarketingNav() {
       <header className="sticky top-0 z-40 w-full bg-white border-b border-black">
         <div className="max-w-7xl mx-auto px-6 md:px-8 h-20 flex items-center justify-between">
           {/* Brand Logo */}
-          <Link href="/" className="group flex items-baseline gap-2">
+          <Link href="/home" className="group flex items-baseline gap-2">
             <span className="font-display text-2xl font-bold tracking-widest uppercase text-black">
               EPHEMERAL
             </span>
