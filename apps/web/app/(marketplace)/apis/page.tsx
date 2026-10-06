@@ -6,6 +6,7 @@ import { SearchBar } from '@/components/marketplace/search-bar'
 import { CategoryPills } from '@/components/marketplace/category-pills'
 import { ApiGrid } from '@/components/marketplace/api-grid'
 import { ApiCard, ApiListingItem } from '@/components/marketplace/api-card'
+import { ApiCardSkeleton } from '@/components/marketplace/api-card-skeleton'
 import { EmptyState } from '@/components/publisher/empty-state'
 import { ApiIcon } from '@/components/icons'
 import { api } from '@/lib/api'
@@ -94,10 +95,11 @@ export default function BrowseApisPage() {
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('ALL')
   const [sortOrder, setSortOrder] = useState<'RECENT' | 'NAME'>('RECENT')
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadApis() {
+      setLoading(true)
       try {
         const liveApis = await api.core.get<ApiListingItem[]>('/apis')
         if (Array.isArray(liveApis) && liveApis.length > 0) {
@@ -105,6 +107,8 @@ export default function BrowseApisPage() {
         }
       } catch {
         // Retain seed catalogue for offline / mock testing
+      } finally {
+        setLoading(false)
       }
     }
     loadApis()
@@ -174,7 +178,13 @@ export default function BrowseApisPage() {
       {/* API Listings Viewport */}
       <section className="py-16 md:py-24 bg-white min-h-[500px]">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
-          {filteredApis.length === 0 ? (
+          {loading ? (
+            <ApiGrid>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ApiCardSkeleton key={i} />
+              ))}
+            </ApiGrid>
+          ) : filteredApis.length === 0 ? (
             <EmptyState
               icon={<ApiIcon size={36} />}
               title="No APIs match your filters."
