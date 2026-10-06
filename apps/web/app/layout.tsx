@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   description: 'Publish, monetize, and monitor your live APIs on the Ephemeral marketplace.',
 }
 
+import { Providers } from '@/components/providers'
+
 export default function RootLayout({
   children,
 }: {
@@ -40,7 +42,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${sourceSerif.variable} ${jetbrains.variable}`}
     >
       <body className="bg-white text-black font-serif antialiased min-h-screen selection:bg-black selection:text-white">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
