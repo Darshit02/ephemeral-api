@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert02Icon, ArrowRight01Icon } from '@/components/icons'
+import { homeForRole } from '@/lib/auth-redirect'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -42,11 +43,7 @@ export default function RegisterPage() {
 
       if (loginRes && loginRes.token && loginRes.user) {
         setAuth(loginRes.token, loginRes.user)
-        if (loginRes.user.role === 'provider') {
-          router.push('/dashboard')
-        } else {
-          router.push('/dashboard')
-        }
+        router.replace(homeForRole(loginRes.user.role as any))
       } else {
         router.push('/login')
       }
@@ -60,7 +57,7 @@ export default function RegisterPage() {
       }
       const mockToken = 'mock_registered_jwt_token.payload.signature'
       setAuth(mockToken, mockUser)
-      router.push(role === 'provider' ? '/dashboard' : '/dashboard')
+      router.replace(homeForRole(role as any))
     } finally {
       setLoading(false)
     }

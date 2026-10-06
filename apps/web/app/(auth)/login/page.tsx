@@ -9,17 +9,26 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert02Icon, ArrowRight01Icon } from '@/components/icons'
+import { homeForRole } from '@/lib/auth-redirect'
+import { toast } from '@/components/ui/toast'
 
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextUrl = searchParams.get('next')
+  const isExpired = searchParams.get('expired')
 
   const { setAuth } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+
+  React.useEffect(() => {
+    if (isExpired) {
+      toast.error('Session expired. Please sign in again.')
+    }
+  }, [isExpired])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,13 +43,8 @@ function LoginForm() {
 
       if (res && res.token && res.user) {
         setAuth(res.token, res.user)
-        if (nextUrl) {
-          router.push(nextUrl)
-        } else if (res.user.role === 'provider') {
-          router.push('/dashboard')
-        } else {
-          router.push('/dashboard')
-        }
+        const target = nextUrl || homeForRole(res.user.role as any)
+        router.replace(target)
       } else {
         throw new Error('Invalid response structure received from authentication server.')
       }
